@@ -292,6 +292,7 @@ extension ChannelIO {
   }
   
   @objc internal class func enterBackground() {
+    dlog("willResignActiveNotification")
     WsService.shared.disconnect()
     ChannelIO.willBecomeActive = false
     ChannelAvailabilityChecker.shared.stop()
@@ -299,6 +300,7 @@ extension ChannelIO {
   }
   
   @objc internal class func enterForeground() {
+    dlog("didBecomeActiveNotification")
     guard self.isValidStatus else { return }
     _ = WsService.shared.ready()
       .take(1)
@@ -314,6 +316,7 @@ extension ChannelIO {
   }
   
   @objc internal class func appBecomeActive(_ application: UIApplication) {
+    dlog("willEnterForegroundNotification")
     ChannelIO.willBecomeActive = true
     if ChannelIO.baseNavigation != nil {
       ChannelAvailabilityChecker.shared.run()

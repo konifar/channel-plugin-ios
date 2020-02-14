@@ -208,13 +208,11 @@ class WsService {
   }
   
   func disconnect() {
-    if self.socket != nil {
-      self.socket?.removeAllHandlers()
-      self.socket?.disconnect()
-      self.socket = nil
-      self.invalidateTimer()
-      dlog("socket disconnect manually")
-    }
+    self.socket?.removeAllHandlers()
+    self.socket?.disconnect()
+    self.socket = nil
+    self.invalidateTimer()
+    dlog("socket disconnect manually")
   }
   
   /*
