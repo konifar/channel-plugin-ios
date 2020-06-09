@@ -173,6 +173,85 @@ struct PluginPromise {
       let req = AF
         .request(RestRouter.SendPushAck(chatId))
         .validate(statusCode: 200..<300)
+        .response { response in
+          if let error = CHUtils.getServerErrorMessage(data: response.data)?.first {
+            let msg = "\n***sendpushack sever fail!!\n"
+              + "R: \(response.request)\n"
+              + "H: \(response.request?.headers)\n"
+              + "E: \(error)"
+            let param: [String: Any] = [
+              "message": msg
+            ]
+
+            let headers: HTTPHeaders = [
+              "X-Access-Key": "5b67e6d6700a4a37",
+              "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            ]
+
+            AF.request(
+              "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+              method: .post,
+              parameters: param,
+              encoding: JSONEncoding.default,
+              headers: headers)
+              .responseJSON { response in
+                print(response)
+              }
+            subscriber.onError(ChannelError.serverError(msg: error))
+          } else if let error = response.error {
+            let msg = "\n***sendpushack alamofire fail!!\n"
+              + "R: \(response.request)\n"
+              + "H: \(response.request?.headers)\n"
+              + "E: \(error.errorDescription)"
+            let param: [String: Any] = [
+              "message": msg
+            ]
+
+            let headers: HTTPHeaders = [
+              "X-Access-Key": "5b67e6d6700a4a37",
+              "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            ]
+
+            AF.request(
+              "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+              method: .post,
+              parameters: param,
+              encoding: JSONEncoding.default,
+              headers: headers)
+              .responseJSON { response in
+                print(response)
+              }
+            subscriber.onError(ChannelError.serverError(msg: error.localizedDescription))
+          } else {
+           
+            let param: [String: Any] = [
+              "message": "\n***sendack success!!\n"
+            ]
+
+            let headers: HTTPHeaders = [
+              "X-Access-Key": "5b67e6d6700a4a37",
+              "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            ]
+
+            AF.request(
+              "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+              method: .post,
+              parameters: param,
+              encoding: JSONEncoding.default,
+              headers: headers)
+              .responseJSON { response in
+                print(response)
+              }
+            subscriber.onNext(nil)
+            subscriber.onCompleted()
+          }
+        }
         .responseJSON(completionHandler: { (response) in
           switch response.result {
           case .success(_):

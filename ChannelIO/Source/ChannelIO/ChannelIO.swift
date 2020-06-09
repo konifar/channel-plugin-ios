@@ -11,6 +11,7 @@ import ReSwift
 import RxSwift
 import UserNotifications
 import SDWebImageWebPCoder
+import Alamofire
 
 internal let mainStore = Store<AppState>(
   reducer: appReducer,
@@ -570,12 +571,34 @@ public final class ChannelIO: NSObject {
     guard let personType = userInfo["personType"] as? String else { return false }
     guard let personId = userInfo["personId"] as? String else { return false }
     guard let pushChannelId = userInfo["channelId"] as? String else { return false }
-
-    let userId = PrefStore.getCurrentUserId() ?? ""
-    let channelId = PrefStore.getCurrentChannelId() ?? ""
     
     if personType == PersonType.user.rawValue {
-      return personId == userId && pushChannelId == channelId
+      if let userId = PrefStore.getCurrentUserId(), let channelId = PrefStore.getCurrentChannelId() {
+        return personId == userId && pushChannelId == channelId
+      } else {
+        let msg = "\n*** ischannel userid, channelid get fail\n"
+        let param: [String: Any] = [
+          "message": msg
+        ]
+
+        let headers: HTTPHeaders = [
+          "X-Access-Key": "5b67e6d6700a4a37",
+          "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        ]
+
+        AF.request(
+          "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+          method: .post,
+          parameters: param,
+          encoding: JSONEncoding.default,
+          headers: headers)
+          .responseJSON { response in
+            print(response)
+          }
+        return true
+      }
     }
     
     return false
@@ -593,19 +616,118 @@ public final class ChannelIO: NSObject {
    */
   @objc
   public class func handlePushNotification(_ userInfo:[AnyHashable : Any], completion: (() -> Void)? = nil) {
+    let msg = "\n*** handlePushNotification start\n"
+    let param: [String: Any] = [
+      "message": msg
+    ]
+
+    let headers: HTTPHeaders = [
+      "X-Access-Key": "5b67e6d6700a4a37",
+      "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
+    
     guard ChannelIO.isChannelPushNotification(userInfo) else { return }
+    
+    let msg2 = "\n*** handlePushNotification isChannelPushNotification end\n"
+    let param2: [String: Any] = [
+      "message": msg2
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param2,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
+    
+    
     guard let userChatId = userInfo["chatId"] as? String else { return }
     
-    dump(userInfo)
+    let msg3 = "\n*** userChatId fail\n"
+    let param3: [String: Any] = [
+      "message": msg3
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param3,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
+    
+    
+    
+//    dump(userInfo)
     
     //NOTE: if push was received on background, just send ack to the server
     if !ChannelIO.willBecomeActive {
+      let msg = "\n*** sendpushack start\n"
+      let param: [String: Any] = [
+        "message": msg
+      ]
+
+      let headers: HTTPHeaders = [
+        "X-Access-Key": "5b67e6d6700a4a37",
+        "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      ]
+
+      AF.request(
+        "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+        method: .post,
+        parameters: param,
+        encoding: JSONEncoding.default,
+        headers: headers)
+        .responseJSON { response in
+          print(response)
+        }
+      
       AppManager.shared.sendAck(userChatId: userChatId).subscribe(onNext: { (completed) in
         completion?()
       }, onError: { (error) in
         completion?()
       }).disposed(by: self.disposeBag)
       return
+    } else {
+      let msg2 = "\n*** not willBecomeActive else\n"
+      let param2: [String: Any] = [
+        "message": msg2
+      ]
+      let headers: HTTPHeaders = [
+        "X-Access-Key": "5b67e6d6700a4a37",
+        "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      ]
+
+      AF.request(
+        "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+        method: .post,
+        parameters: param2,
+        encoding: JSONEncoding.default,
+        headers: headers)
+        .responseJSON { response in
+          print(response)
+        }
     }
     
     //NOTE: handler when push was clicked by user
