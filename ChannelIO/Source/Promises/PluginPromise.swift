@@ -151,9 +151,11 @@ struct PluginPromise {
             subscriber.onNext(result)
             subscriber.onCompleted()
           case .failure(let error):
-            subscriber.onError(ChannelError.serverError(
-              msg: error.localizedDescription
-            ))
+            if let error =  CHUtils.getServerErrorMessage(data: response.data)?.first {
+              subscriber.onError( ChannelError.serverError(msg: error + "\(pluginKey)"))
+            } else {
+              subscriber.onError(ChannelError.serverError(msg: error.localizedDescription))
+            }
           }
         }
       

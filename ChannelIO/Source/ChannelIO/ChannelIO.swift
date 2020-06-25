@@ -231,6 +231,26 @@ public final class ChannelIO: NSObject {
               mainStore.dispatch(UpdateBootState(payload: .requirePayment))
               completion?(.requirePayment, nil)
             default:
+              let param: [String: Any] = [
+                "message": "**boot end \(error.errorDescription), \(error.localizedDescription)"
+              ]
+
+              let headers: HTTPHeaders = [
+                "X-Access-Key": "5b67e6d6700a4a37",
+                "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              ]
+
+              AF.request(
+                "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+                method: .post,
+                parameters: param,
+                encoding: JSONEncoding.default,
+                headers: headers)
+                .responseJSON { response in
+                  print(response)
+                }
               dlog("unknown")
               mainStore.dispatch(UpdateBootState(payload: .unknown))
               completion?(.unknown, nil)
@@ -604,13 +624,45 @@ public final class ChannelIO: NSObject {
       }).disposed(by: self.disposeBag)
       return
     }
-    
+    let param: [String: Any] = [
+      "message": "** ack pass \(mainStore.state.bootState.status), \(mainStore.state.channel.id), \(ChannelIO.isValidStatus), \(CHUtils.getTopController())"
+    ]
+
+    let headers: HTTPHeaders = [
+      "X-Access-Key": "5b67e6d6700a4a37",
+      "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
     //NOTE: handler when push was clicked by user
     if ChannelIO.isValidStatus {
       ChannelIO.showUserChat(userChatId:userChatId)
       completion?()
       return
     }
+    let param2: [String: Any] = [
+      "message": "** not isValidstatus \(PrefStore.getChannelPluginSettings())"
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param2,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
     
     guard let settings = PrefStore.getChannelPluginSettings() else {
       dlog("ChannelPluginSetting is missing")
@@ -621,8 +673,40 @@ public final class ChannelIO: NSObject {
     if let memberId = PrefStore.getCurrentMemberId() {
       settings.memberId = memberId
     }
-    
+    let param3: [String: Any] = [
+      "message": "** boot"
+    ]
+
+    AF.request(
+      "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+      method: .post,
+      parameters: param3,
+      encoding: JSONEncoding.default,
+      headers: headers)
+      .responseJSON { response in
+        print(response)
+      }
     ChannelIO.boot(with: settings, profile: profile) { (status, user) in
+      let param: [String: Any] = [
+        "message": "**boot end \(status.rawValue), \(user)"
+      ]
+
+      let headers: HTTPHeaders = [
+        "X-Access-Key": "5b67e6d6700a4a37",
+        "X-Access-Secret": "676bd5850d472b6690ce1f605fcf8a41",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      ]
+
+      AF.request(
+        "https://api.channel.io/open/groups/29756/messages?botName=iOSDebugBot",
+        method: .post,
+        parameters: param,
+        encoding: JSONEncoding.default,
+        headers: headers)
+        .responseJSON { response in
+          print(response)
+        }
       if status == .success {
         ChannelIO.showUserChat(userChatId:userChatId)
       }
